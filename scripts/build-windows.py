@@ -15,6 +15,14 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+# Force UTF-8 on Windows stdout/stderr to prevent cp1252 encoding crash on CI
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 PYTHON_VERSION = "3.12.8"
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = ROOT / "scripts"
@@ -249,10 +257,10 @@ def main():
         "   （如遇异常退出断网，双击运行 restore_proxy.bat 即可恢复网络）\n",
         encoding="utf-8"
     )
-    log("  + 使用说明.txt")
+    log("  + UserGuide.txt")
 
     # 6. Create clean ZIP archive
-    log(f"Creating clean portable archive...")
+    log("Creating clean portable archive...")
     final_zip = create_clean_zip(PORTABLE_DIR, zip_output)
 
     # 7. Clean temp directory
