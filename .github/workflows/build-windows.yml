@@ -18,11 +18,37 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Resolve release tag
+        shell: pwsh
+        run: |
+          $version = (Get-Content manifest.json -Raw | ConvertFrom-Json).version
+          if (-not $version) { throw "manifest.json version is missing" }
+          "RELEASE_TAG=v$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Ensure tag exists for manual build
+        if: github.event_name == 'workflow_dispatch'
+        shell: pwsh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          $existing = git ls-remote --tags origin "refs/tags/$env:RELEASE_TAG"
+          if (-not $existing) {
+            git tag $env:RELEASE_TAG
+            git push origin $env:RELEASE_TAG
+          }
+
       - name: Build portable package
         run: python scripts/build-windows.py
 
-      - name: Create Release and Upload Asset
+      - name: Create or update Release asset
+        shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.ref_name }} (Get-Item dist/*.zip).FullName --title "WxArticleSaver ${{ github.ref_name }}" --generate-notes
+          $asset = (Get-Item dist/*.zip).FullName
+          gh release view $env:RELEASE_TAG *> $null
+          if ($LASTEXITCODE -eq 0) {
+            gh release upload $env:RELEASE_TAG $asset --clobber
+          } else {
+            gh release create $env:RELEASE_TAG $asset --title "WxArticleSaver $env:RELEASE_TAG" --generate-notes
+          }
