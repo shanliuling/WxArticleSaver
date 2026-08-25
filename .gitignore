@@ -16,6 +16,7 @@ venv/
 *.spec
 dist/
 build/
+build_cache/
 
 # Editors / OS
 .vscode/
