@@ -1,0 +1,4 @@
+mitmproxy>=11,<13
+beautifulsoup4>=4.12
+markdownify>=0.13
+requests>=2.31

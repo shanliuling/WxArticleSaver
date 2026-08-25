@@ -1,0 +1,25 @@
+# Runtime data / local state
+exports/
+.wxas_ca/
+proxy_backup.json
+.proxy_backup.json
+run.log
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env
+*.spec
+dist/
+build/
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
+.DS_Store
