@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 """
 WxArticleSaver - Windows Portable Package Builder
-Builds a standalone portable distribution bundling Python embeddable runtime.
+Builds a lean, clean standalone distribution bundling Python embeddable runtime.
 Zero Python installation required for end-users.
 """
 
@@ -32,6 +32,20 @@ def fail(msg):
     print(f"\n[ERROR] {msg}", file=sys.stderr, flush=True)
     sys.exit(1)
 
+def safe_remove(path):
+    p = Path(path)
+    if not p.exists():
+        return
+    for _ in range(5):
+        try:
+            if p.is_dir():
+                shutil.rmtree(p, ignore_errors=True)
+            else:
+                p.unlink(missing_ok=True)
+            return
+        except Exception:
+            time.sleep(0.5)
+
 def download_file(url, dest_path, retries=3):
     dest = Path(dest_path)
     if dest.exists() and dest.stat().st_size > 1024:
@@ -59,6 +73,40 @@ def download_file(url, dest_path, retries=3):
             else:
                 fail(f"Failed to download {url}: {e}")
 
+def trim_runtime_size():
+    """Strip unnecessary development and metadata files to minimize package size."""
+    log("Trimming unused files from runtime (tests, docs, pycache)...")
+    patterns_to_remove = ["__pycache__", "tests", "test", "testing", "idlelib", "tkinter", "turtledemo"]
+    for dir_path in RUNTIME_DIR.rglob("*"):
+        if dir_path.is_dir() and dir_path.name.lower() in patterns_to_remove:
+            shutil.rmtree(dir_path, ignore_errors=True)
+
+    extensions_to_remove = {".pyi", ".c", ".h", ".pdb", ".exe.manifest"}
+    for file_path in RUNTIME_DIR.rglob("*"):
+        if file_path.is_file():
+            if file_path.suffix.lower() in extensions_to_remove:
+                file_path.unlink(missing_ok=True)
+
+def create_clean_zip(source_dir, output_zip_path):
+    """Create ZIP archive cleanly with fallback if file is locked."""
+    source_path = Path(source_dir)
+    target_path = Path(output_zip_path)
+    
+    if target_path.exists():
+        try:
+            target_path.unlink()
+        except OSError:
+            log(f"Target {target_path.name} is in use; creating timestamped package...")
+            target_path = target_path.parent / f"{target_path.stem}_{int(time.time())}.zip"
+    
+    with zipfile.ZipFile(target_path, "w", zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
+        for root, dirs, files in os.walk(source_path):
+            for file in files:
+                full_path = Path(root) / file
+                rel_path = full_path.relative_to(source_path.parent)
+                zf.write(full_path, rel_path)
+    return target_path
+
 def main():
     manifest_file = ROOT / "manifest.json"
     if not manifest_file.exists():
@@ -70,16 +118,13 @@ def main():
     zip_output = DIST_DIR / zip_name
 
     print("=" * 60)
-    print(f" WxArticleSaver v{version} - Windows Portable Builder")
+    print(f" WxArticleSaver v{version} - Clean Portable Builder")
     print(f" Python Embeddable: {PYTHON_VERSION}")
     print("=" * 60)
 
     # 0. Clean old build
     log("Cleaning previous build folder...")
-    if PORTABLE_DIR.exists():
-        shutil.rmtree(PORTABLE_DIR, ignore_errors=True)
-    if zip_output.exists():
-        zip_output.unlink(missing_ok=True)
+    safe_remove(PORTABLE_DIR)
     
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     TEMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -139,10 +184,8 @@ def main():
         for item in target_bin.iterdir():
             shutil.copy2(item, scripts_dir / item.name)
 
-    # Clean __pycache__ to reduce size
-    for p in RUNTIME_DIR.rglob("__pycache__"):
-        if p.is_dir():
-            shutil.rmtree(p, ignore_errors=True)
+    # Clean unused files to minimize footprint
+    trim_runtime_size()
 
     # 4. Build stub exe via PyInstaller
     log("Compiling WxArticleSaver.exe stub launcher...")
@@ -170,52 +213,57 @@ def main():
     if not exe_path.exists():
         fail("WxArticleSaver.exe was not created")
 
-    # 5. Copy project files into portable folder
-    log("Copying application files...")
-    files_to_copy = [
+    # 5. Copy ONLY necessary runtime files into portable folder
+    log("Copying minimal application files...")
+    runtime_files = [
         "launcher.py",
         "wx_article_saver.py",
-        "manifest.json",
-        "requirements.txt",
         "restore_proxy.bat",
         "restore_proxy.py",
         "remove_certificate.bat",
         "remove_certificate.py",
         "diagnose.bat",
         "LICENSE",
-        "README.md",
-        "README_EN.md",
     ]
-    for filename in files_to_copy:
+    for filename in runtime_files:
         src = ROOT / filename
         if src.exists():
             shutil.copy2(src, PORTABLE_DIR / filename)
             log(f"  + {filename}")
 
-    # Copy docs folder if exists
-    docs_src = ROOT / "docs"
-    if docs_src.exists():
-        shutil.copytree(docs_src, PORTABLE_DIR / "docs", dirs_exist_ok=True)
-        log("  + docs/")
-
-    # 6. Create ZIP archive
-    log(f"Creating portable archive: {zip_name}...")
-    shutil.make_archive(
-        base_name=str(DIST_DIR / f"WxArticleSaver-v{version}-Windows-x64"),
-        format="zip",
-        root_dir=str(DIST_DIR),
-        base_dir="WxArticleSaver"
+    # Generate user-friendly instructions file
+    readme_txt = PORTABLE_DIR / "使用说明.txt"
+    readme_txt.write_text(
+        "WxArticleSaver 使用说明\n"
+        "========================\n\n"
+        "1. 启动工具：\n"
+        "   双击【WxArticleSaver.exe】打开程序（运行时请保持黑色窗口开启）。\n\n"
+        "2. 导出文章：\n"
+        "   打开微信电脑版，进入公众号文章，点击右下角绿色【导出本文】按钮。\n"
+        "   - 如果没看到按钮：在文章页面内按 Ctrl+R 或右键选择【刷新】。\n"
+        "   - 如果文章包含视频：建议先播放几秒再点击导出。\n\n"
+        "3. 查看导出文件：\n"
+        "   导出的 Markdown、HTML、TXT、图片与视频默认保存在【exports】文件夹中。\n\n"
+        "4. 退出程序：\n"
+        "   回到黑色窗口按 Ctrl+C，或直接关闭窗口，系统会自动恢复网络代理并移除临时证书。\n"
+        "   （如遇异常退出断网，双击运行 restore_proxy.bat 即可恢复网络）\n",
+        encoding="utf-8"
     )
+    log("  + 使用说明.txt")
+
+    # 6. Create clean ZIP archive
+    log(f"Creating clean portable archive...")
+    final_zip = create_clean_zip(PORTABLE_DIR, zip_output)
 
     # 7. Clean temp directory
-    shutil.rmtree(TEMP_DIR, ignore_errors=True)
+    safe_remove(TEMP_DIR)
 
-    size_mb = zip_output.stat().st_size / (1024 * 1024)
+    size_mb = final_zip.stat().st_size / (1024 * 1024)
     print("\n" + "=" * 60)
-    print(" Portable build succeeded!")
-    print(f" Output: {zip_output}")
+    print(" Clean portable build succeeded!")
+    print(f" Output: {final_zip}")
     print(f" Size:   {size_mb:.1f} MB")
-    print("=" * 60 + "\n")
+    print("============================================================" + "\n")
 
 if __name__ == "__main__":
     main()
