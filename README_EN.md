@@ -35,22 +35,31 @@
 
 ## Quick Start
 
-### 1. Requirements
+### Method 1: Portable Release (Recommended · No Python Required)
 
+1. Go to [Releases](https://github.com/shanliuling/WxArticleSaver/releases) and download the latest `WxArticleSaver-v1.0.0-Windows-x64.zip`.
+2. Extract to any folder and double-click **`WxArticleSaver.exe`**.
+
+---
+
+### Method 2: Run from Source (For Developers)
+
+#### 1. Requirements
 - Windows 10 / 11
 - Python 3.11 or 3.12
 
-### 2. Start
-
+#### 2. Start
 After downloading the source code, double-click:
 
 ```text
 install_and_run.bat
 ```
 
-On first run, WxArticleSaver installs the required Python dependencies and temporarily trusts a locally generated proxy certificate for the **current Windows user**.
+On first run, WxArticleSaver automatically installs required dependencies and temporarily trusts a locally generated CA certificate for the **current Windows user**.
 
-### 3. Export an Article
+---
+
+### 3. Export an Article (Common Steps)
 
 1. Start WxArticleSaver, then fully quit WeChat and reopen it.
 2. Open an Official Account article that you can normally access.

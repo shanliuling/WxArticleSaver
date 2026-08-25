@@ -35,22 +35,31 @@
 
 ## 快速开始
 
-### 1. 环境要求
+### 方式一：免安装便携版（推荐 · 无需安装 Python）
 
+1. 前往 [Releases 发布页](https://github.com/shanliuling/WxArticleSaver/releases) 下载最新的 `WxArticleSaver-v1.0.0-Windows-x64.zip`。
+2. 解压到任意文件夹，双击运行 **`WxArticleSaver.exe`**。
+
+---
+
+### 方式二：源码运行（适合开发者）
+
+#### 1. 环境要求
 - Windows 10 / 11
 - Python 3.11 或 3.12
 
-### 2. 启动
-
+#### 2. 启动
 下载源码后双击：
 
 ```text
 install_and_run.bat
 ```
 
-首次运行会安装 Python 依赖，并在**当前 Windows 用户**下临时信任本机生成的代理证书。
+首次运行会自动安装 Python 依赖，并在**当前 Windows 用户**下临时信任本机生成的代理证书。
 
-### 3. 导出文章
+---
+
+### 3. 导出文章（通用步骤）
 
 1. 启动 WxArticleSaver 后，完全退出微信并重新打开。
 2. 打开你可以正常阅读的公众号文章。
