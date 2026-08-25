@@ -37,7 +37,7 @@
 
 ### Method 1: Portable Release (Recommended · No Python Required)
 
-1. Click **[Direct Download WxArticleSaver-v1.0.0-Windows-x64.zip](https://github.com/shanliuling/WxArticleSaver/releases/download/v1.0.0/WxArticleSaver-v1.0.0-Windows-x64.zip)** (or visit [Releases](https://github.com/shanliuling/WxArticleSaver/releases) page).
+1. Go to **[Latest Releases](https://github.com/shanliuling/WxArticleSaver/releases/latest)** and download the latest `WxArticleSaver-*-Windows-x64.zip`.
 2. Extract to any folder and double-click **`WxArticleSaver.exe`**.
 
 ---

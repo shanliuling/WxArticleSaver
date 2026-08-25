@@ -37,7 +37,7 @@
 
 ### 方式一：免安装便携版（推荐 · 无需安装 Python）
 
-1. 点击 **[直接下载 WxArticleSaver-v1.0.0-Windows-x64.zip](https://github.com/shanliuling/WxArticleSaver/releases/download/v1.0.0/WxArticleSaver-v1.0.0-Windows-x64.zip)**（也可前往 [Releases 发布页](https://github.com/shanliuling/WxArticleSaver/releases) 查看）。
+1. 前往 **[Releases 最新发布页](https://github.com/shanliuling/WxArticleSaver/releases/latest)** 下载最新的 `WxArticleSaver-*-Windows-x64.zip`。
 2. 解压到任意文件夹，双击运行 **`WxArticleSaver.exe`**。
 
 ---
