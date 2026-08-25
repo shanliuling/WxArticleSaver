@@ -1,11 +1,17 @@
-# WxArticleSaver
+<p align="right">
+  <a href="./README.md">中文</a> | <a href="./README_EN.md">English</a>
+</p>
 
-[中文](./README.md)
+<h1 align="center">WxArticleSaver</h1>
 
-> A local-first WeChat Official Account article archiving tool. Open an article that you can **normally access**, click **"Export Article"** in the bottom-right corner, and save the article text, images, and directly accessible media resources to your computer.
+<p align="center">
+  A local-first WeChat Official Account article archiving tool.<br>
+  Open an article you can normally access, click "Export Article" in the bottom-right corner, and save the article text, images, and directly accessible media resources to your computer.
+</p>
 
-**Current platform: Windows 10 / Windows 11**  
-**License: GNU AGPL-3.0**
+<p align="center">
+  <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong>
+</p>
 
 ## Features
 
