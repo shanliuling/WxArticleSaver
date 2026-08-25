@@ -13,6 +13,12 @@
   <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong>
 </p>
 
+<p align="center">
+  <img src="./docs/images/hero-export-demo.jpg"
+       alt="WxArticleSaver 微信文章导出 Markdown 效果"
+       width="100%" />
+</p>
+
 ## 功能
 
 - 📄 一键导出 Markdown / HTML / TXT
@@ -20,6 +26,12 @@
 - 🎬 支持文章内可直接获取的视频资源
 - 🔒 所有文章内容默认仅保存在本机
 - 🚫 不需要第三方账号或云服务
+
+<p align="center">
+  <img src="./docs/images/workflow-demo.jpg"
+       alt="WxArticleSaver 微信文章导出使用流程"
+       width="100%" />
+</p>
 
 ## 快速开始
 

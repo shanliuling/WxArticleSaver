@@ -13,6 +13,12 @@
   <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong>
 </p>
 
+<p align="center">
+  <img src="./docs/images/hero-export-demo.jpg"
+       alt="WxArticleSaver WeChat article to Markdown export preview"
+       width="100%" />
+</p>
+
 ## Features
 
 - 📄 One-click export to Markdown / HTML / TXT
@@ -20,6 +26,12 @@
 - 🎬 Support directly accessible media resources in articles
 - 🔒 All article content is stored locally by default
 - 🚫 No third-party account or cloud service required
+
+<p align="center">
+  <img src="./docs/images/workflow-demo.jpg"
+       alt="WxArticleSaver article export workflow"
+       width="100%" />
+</p>
 
 ## Quick Start
 
