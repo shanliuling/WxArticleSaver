@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # -*- coding: utf-8 -*-
 """
-WxArticleSaver v1.0.0 - Windows launcher
+WxArticleSaver v1.0.1 - Windows launcher
 
 Security model:
-- A local PAC file routes ONLY mp.weixin.qq.com to mitmproxy.
+- A local PAC file routes ONLY selected WeChat article/media hosts to mitmproxy.
 - Every other host goes DIRECT and does not enter mitmproxy at all.
 - The generated CA is trusted only while the tool is running and removed on exit.
 """
@@ -157,7 +157,6 @@ def backup_and_enable_proxy():
     with winreg.OpenKey(
         winreg.HKEY_CURRENT_USER, KEY_PATH, 0, winreg.KEY_SET_VALUE
     ) as key:
-        # Disable global manual proxy.
         winreg.SetValueEx(key, "ProxyEnable", 0, winreg.REG_DWORD, 0)
         try:
             winreg.DeleteValue(key, "ProxyServer")
@@ -167,14 +166,26 @@ def backup_and_enable_proxy():
             winreg.DeleteValue(key, "ProxyOverride")
         except OSError:
             pass
-
-        # Enable PAC so only WeChat article traffic enters mitmproxy.
         winreg.SetValueEx(key, "AutoConfigURL", 0, winreg.REG_SZ, pac_url)
 
     wininet_refresh()
     return state
 
+def _bundled_runtime_active():
+    exe = Path(sys.executable).resolve()
+    return exe.name.lower() == "python.exe" and exe.parent.name.lower() == "runtime"
+
 def ensure_mitmdump():
+    # In the portable build, console-script launchers copied by pip may contain
+    # absolute interpreter paths from the CI machine. Always invoke mitmproxy
+    # through the bundled runtime Python instead.
+    if _bundled_runtime_active():
+        if importlib.util.find_spec("mitmproxy") is None:
+            fail("便携版运行时中没有找到 mitmproxy 包，请重新下载完整发行包。", 20)
+        log("便携版：使用内置 Python 启动 mitmproxy。")
+        code = "from mitmproxy.tools.main import mitmdump; mitmdump()"
+        return [sys.executable, "-c", code]
+
     candidates = []
 
     exe = shutil.which("mitmdump")
@@ -340,13 +351,13 @@ def remove_own_ca(cert):
 
 def main():
     LOG.write_text(
-        f"WxArticleSaver v1.0.0 start: {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        f"WxArticleSaver v1.0.1 start: {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
         f"Python: {sys.version}\nExecutable: {sys.executable}\n\n",
         encoding="utf-8",
     )
 
     log("=" * 62)
-    log(" WxArticleSaver v1.0.0")
+    log(" WxArticleSaver v1.0.1")
     log("=" * 62)
 
     if BACKUP.exists():
@@ -354,7 +365,6 @@ def main():
         restore_proxy_from_backup()
 
     mitmdump = ensure_mitmdump()
-
     cert = ensure_ca(mitmdump)
     trust_ca(cert)
 
@@ -436,38 +446,10 @@ def main():
 
 if __name__ == "__main__":
     try:
-        rc = main()
-        log(f"程序退出，代码: {rc}")
-        try:
-            input("按回车关闭窗口…")
-        except Exception:
-            pass
-        raise SystemExit(rc or 0)
+        code = main()
+        raise SystemExit(code or 0)
     except SystemExit:
         raise
-    except BaseException:
-        tb = traceback.format_exc()
-        log("")
-        log("========== 未处理异常 ==========")
-        log(tb)
-
-        try:
-            if BACKUP.exists():
-                log("检测到代理备份，尝试恢复…")
-                restore_proxy_from_backup()
-        except Exception:
-            log(traceback.format_exc())
-
-        try:
-            cert = CONFDIR / "mitmproxy-ca-cert.cer"
-            if cert.exists():
-                log("异常退出：尝试移除本工具临时根证书…")
-                remove_own_ca(cert)
-        except Exception:
-            log(traceback.format_exc())
-
-        try:
-            input("程序发生异常。错误已写入 run.log，按回车退出…")
-        except Exception:
-            pass
-        raise
+    except Exception:
+        log(traceback.format_exc())
+        fail("程序异常退出。请查看 run.log。", 99)
