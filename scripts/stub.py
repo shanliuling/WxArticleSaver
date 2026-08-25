@@ -5,8 +5,9 @@ Compiled to WxArticleSaver.exe via PyInstaller.
 Only uses stdlib — zero third-party imports.
 """
 import os
-import sys
+import signal
 import subprocess
+import sys
 
 
 def main():
@@ -28,7 +29,21 @@ def main():
         input("按回车退出…")
         return 1
 
-    return subprocess.call([python, "-u", launcher], cwd=root)
+    cleanup_notice_shown = False
+
+    def on_ctrl_c(signum, frame):
+        nonlocal cleanup_notice_shown
+        # The child Python process shares the same Windows console and receives
+        # Ctrl+C as well. launcher.py handles KeyboardInterrupt and performs the
+        # proxy/certificate cleanup. The stub must stay alive while that happens.
+        if not cleanup_notice_shown:
+            cleanup_notice_shown = True
+            print("\n正在停止 WxArticleSaver，请等待代理和证书清理完成…", flush=True)
+
+    signal.signal(signal.SIGINT, on_ctrl_c)
+
+    proc = subprocess.Popen([python, "-u", launcher], cwd=root)
+    return proc.wait()
 
 
 if __name__ == "__main__":
