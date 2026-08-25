@@ -1,11 +1,17 @@
-# WxArticleSaver
+<p align="right">
+  <a href="./README.md">中文</a> | <a href="./README_EN.md">English</a>
+</p>
 
-[English](./README_EN.md)
+<h1 align="center">WxArticleSaver</h1>
 
-> 本地运行的微信公众号文章归档工具。打开你**可以正常阅读**的公众号文章，点击右下角 **「导出本文」**，即可保存文章正文、图片及可直接获取的媒体资源。
+<p align="center">
+  本地运行的微信公众号文章归档工具。<br>
+  打开你可以正常阅读的公众号文章，点击右下角「导出本文」，即可保存文章正文、图片及可直接获取的媒体资源。
+</p>
 
-**当前平台：Windows 10 / Windows 11**  
-**License：GNU AGPL-3.0**
+<p align="center">
+  <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong>
+</p>
 
 ## 功能
 
