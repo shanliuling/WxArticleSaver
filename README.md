@@ -40,6 +40,21 @@
 1. 前往 **[Releases 最新发布页](https://github.com/shanliuling/WxArticleSaver/releases/latest)** 下载最新的 `WxArticleSaver-*-Windows-x64.zip`。
 2. 解压到任意文件夹，双击运行 **`WxArticleSaver.exe`**。
 
+导出的文章默认保存在 **`WxArticleSaver.exe` 所在目录下的 `exports` 文件夹** 中。例如：
+
+```text
+WxArticleSaver/
+├─ WxArticleSaver.exe
+├─ runtime/
+└─ exports/
+   └─ 文章标题/
+      ├─ article.md
+      ├─ article.html
+      ├─ article.txt
+      ├─ images/
+      └─ videos/
+```
+
 ---
 
 ### 方式二：源码运行（适合开发者）
