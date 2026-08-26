@@ -10,7 +10,8 @@
 </p>
 
 <p align="center">
-  <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong>
+  <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong><br>
+  <a href="https://linux.do/"><img src="https://img.shields.io/badge/LINUX%20DO-社区友链-555?style=flat" alt="LINUX DO 社区友链" /></a>
 </p>
 
 <p align="center">
