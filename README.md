@@ -11,6 +11,9 @@
 
 <p align="center">
   <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong><br>
+  <a href="https://github.com/shanliuling/WxArticleSaver/releases/latest"><img src="https://img.shields.io/github/v/release/shanliuling/WxArticleSaver?style=flat-square" alt="GitHub Release" /></a>
+  <a href="https://github.com/shanliuling/WxArticleSaver/releases"><img src="https://img.shields.io/github/downloads/shanliuling/WxArticleSaver/total?style=flat-square" alt="GitHub Downloads" /></a>
+  <a href="https://github.com/shanliuling/WxArticleSaver/releases/latest"><img src="https://img.shields.io/badge/Portable-No%20Python%20Required-success?style=flat-square" alt="Portable No Python Required" /></a>
   <a href="https://linux.do/"><img src="https://img.shields.io/badge/LINUX%20DO-社区友链-555?style=flat" alt="LINUX DO 社区友链" /></a>
 </p>
 
