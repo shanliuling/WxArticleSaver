@@ -78,6 +78,23 @@ install_and_run.bat
 
 ---
 
+### macOS 实验性支持（源码运行）
+
+macOS 版本目前处于 PoC 阶段，暂不提供免安装 `.app`。它会通过 macOS 网络服务的 PAC 将微信文章/媒体请求送入本机 `mitmproxy`。
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+./run_macos.command --service "Wi-Fi"
+```
+
+首次启动需要将程序生成的 CA 导入当前用户的 `Login` Keychain，并手动设置为 `Always Trust`。然后完全退出并重新打开微信 Mac；没有看到“导出本文”时手动按 `⌘R`。停止程序请回到终端按 `Ctrl+C`，异常退出后运行 `restore_proxy_macos.command`。
+
+详细步骤、安全说明和当前限制见 [`docs/macos.md`](./docs/macos.md)。
+
+---
+
 ### 3. 导出文章（通用步骤）
 
 1. 启动 WxArticleSaver 后，完全退出微信并重新打开。

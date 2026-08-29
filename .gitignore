@@ -2,6 +2,7 @@
 exports/
 .wxas_ca/
 proxy_backup.json
+proxy_backup_macos.json
 .proxy_backup.json
 run.log
 *.log
