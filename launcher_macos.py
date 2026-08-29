@@ -16,7 +16,13 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from certificate_macos import CertificateError, certificate_fingerprint, trust_instructions
+from certificate_macos import (
+    CertificateError,
+    certificate_fingerprint,
+    remove_certificate,
+    trust_instructions,
+)
+from macos_paths import data_root
 from proxy_backend_macos import (
     MacOSProxyBackend,
     NetworkSetupError,
@@ -25,11 +31,12 @@ from proxy_backend_macos import (
     save_snapshot,
 )
 
-ROOT = Path(__file__).resolve().parent
-LOG = ROOT / "run_macos.log"
-CONFDIR = ROOT / ".wxas_ca"
-EXPORTS = ROOT / "exports"
-BACKUP = ROOT / "proxy_backup_macos.json"
+ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+DATA_ROOT = data_root()
+LOG = DATA_ROOT / "run_macos.log"
+CONFDIR = DATA_ROOT / ".wxas_ca"
+EXPORTS = DATA_ROOT / "exports"
+BACKUP = DATA_ROOT / "proxy_backup_macos.json"
 PORT = 8899
 PAC_PORT = 8898
 
@@ -96,6 +103,12 @@ def fail(message: str, code: int = 1) -> None:
 
 
 def ensure_mitmdump() -> list[str]:
+    # A PyInstaller one-file executable is not a Python interpreter. In frozen
+    # mode, route mitmdump back through the runner's explicit dispatch path
+    # instead of trying to execute `wxas-runner -c ...`.
+    if getattr(sys, "frozen", False):
+        return [sys.executable, "--mitmdump"]
+
     executable = shutil.which("mitmdump")
     if executable:
         return [executable]
@@ -197,6 +210,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument("--port", type=int, default=PORT, help="mitmproxy 端口")
     parser.add_argument("--pac-port", type=int, default=PAC_PORT, help="PAC 服务端口")
+    parser.add_argument(
+        "--restore-only",
+        action="store_true",
+        help="只恢复上次保存的 macOS 代理配置，不启动代理",
+    )
+    parser.add_argument(
+        "--remove-certificate",
+        action="store_true",
+        help="按指纹清理本工具生成的 Login Keychain 证书，不启动代理",
+    )
     return parser.parse_args(argv)
 
 
@@ -205,6 +228,7 @@ def main(argv: list[str] | None = None) -> int:
         fail("launcher_macos.py 只能在 macOS 上运行。")
 
     args = parse_args(argv)
+    DATA_ROOT.mkdir(parents=True, exist_ok=True)
     LOG.write_text(
         f"WxArticleSaver macOS start: {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
         f"Python: {sys.version}\nExecutable: {sys.executable}\n",
@@ -215,6 +239,18 @@ def main(argv: list[str] | None = None) -> int:
     mitm_process = None
     snapshot: ProxySnapshot | None = None
     try:
+        if args.restore_only:
+            restore_saved_proxy(backend)
+            return 0
+        if args.remove_certificate:
+            cert = CONFDIR / "mitmproxy-ca-cert.cer"
+            if not cert.exists():
+                log(f"[提示] 未找到证书：{cert}")
+                return 0
+            remove_certificate(cert)
+            log("[完成] 已从 Login Keychain 清理 WxArticleSaver 证书。")
+            return 0
+
         restore_saved_proxy(backend)
         mitmdump = ensure_mitmdump()
         cert = ensure_ca(mitmdump, args.port + 1)

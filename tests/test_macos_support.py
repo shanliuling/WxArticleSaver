@@ -2,7 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import certificate_macos
 from proxy_backend_macos import (
@@ -16,6 +16,13 @@ from proxy_backend_macos import (
 
 
 class MacOSSupportTests(unittest.TestCase):
+    def test_frozen_runner_uses_internal_mitmdump_dispatch(self):
+        from launcher_macos import ensure_mitmdump
+
+        with patch.object(__import__("launcher_macos").sys, "frozen", True, create=True):
+            with patch.object(__import__("launcher_macos").sys, "executable", "/app/wxas-runner"):
+                self.assertEqual(ensure_mitmdump(), ["/app/wxas-runner", "--mitmdump"])
+
     def test_parse_networksetup_output(self):
         values = parse_key_value_output("Enabled: Yes\nURL: http://127.0.0.1:8898/proxy.pac\n")
         self.assertEqual(values, {"Enabled": "Yes", "URL": "http://127.0.0.1:8898/proxy.pac"})
@@ -90,9 +97,36 @@ class MacOSSupportTests(unittest.TestCase):
             backend.apply(snapshot)
 
         commands = [tuple(call[1:]) for call in calls]
-        self.assertIn(("-setautoproxyurl", "Wi-Fi", ""), commands)
+        self.assertNotIn(("-setautoproxyurl", "Wi-Fi", ""), commands)
         self.assertIn(("-setautoproxystate", "Wi-Fi", "off"), commands)
         self.assertIn(("-setwebproxystate", "Wi-Fi", "on"), commands)
+
+    def test_restore_does_not_pass_empty_pac_url_to_networksetup(self):
+        calls = []
+
+        def runner(args, **kwargs):
+            calls.append(args)
+            return Mock(returncode=0, stdout="", stderr="")
+
+        state = ProxyServiceState(
+            name="Wi-Fi",
+            auto_enabled=False,
+            auto_url="",
+            manual_enabled={"web": False, "secureweb": False, "socksfirewall": False},
+            raw={},
+        )
+        from proxy_backend_macos import restore_service_state
+
+        restore_service_state(state, runner=runner)
+
+        self.assertNotIn(
+            ["networksetup", "-setautoproxyurl", "Wi-Fi", ""],
+            calls,
+        )
+        self.assertIn(
+            ["networksetup", "-setautoproxystate", "Wi-Fi", "off"],
+            calls,
+        )
 
     def test_select_services_deduplicates_explicit_names(self):
         def runner(args, **kwargs):

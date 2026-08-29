@@ -1,6 +1,35 @@
-# macOS 实验性支持
+# macOS 支持
 
-macOS 支持目前是源码运行版 PoC，不是正式免安装 `.app`。它复用现有的文章解析和导出逻辑，通过 macOS 网络服务的 PAC 将微信文章/媒体请求送入本机 mitmproxy。
+> 直接使用 DMG 的用户请先阅读：[macOS 操作说明](./macos-user-guide.md)。
+
+macOS 版本支持源码运行，也支持构建可双击启动的 `.app` 和 `.dmg` 安装包。它复用现有的文章解析和导出逻辑，通过 macOS 网络服务的 PAC 将微信文章/媒体请求送入本机 mitmproxy。
+
+## 下载 DMG（推荐）
+
+当前项目可在 Apple Silicon Mac 上生成 `WxArticleSaver-macos-arm64.dmg`。由于仓库目前没有 Apple Developer ID 签名证书，发布包是未签名测试包；首次打开时请在 Finder 中右键 `WxArticleSaver.app`，选择“打开”，再确认运行。
+
+DMG 打开后将 `WxArticleSaver.app` 拖到 `Applications`，然后双击启动。应用会自动打开一个 Terminal 窗口，代理运行期间不要关闭该窗口。
+
+## 从源码构建 DMG
+
+仅在 Apple Silicon Mac 上执行：
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m pip install pyinstaller
+python scripts/build-macos.py --skip-install
+```
+
+构建产物：
+
+```text
+dist/WxArticleSaver-macos-arm64.dmg
+dist/WxArticleSaver-macos-arm64.dmg.sha256
+```
+
+如果已有 Apple Developer ID，可使用 `--sign-identity "Developer ID Application: ..."` 签名；公开分发前还需要 notarization。
 
 ## 环境要求
 
@@ -97,7 +126,7 @@ exports/
 
 ## 当前限制
 
-- 尚未提供签名或 notarization 的 `.app`；
+- 默认构建的是未签名 arm64 `.app`，尚未 notarization；
 - 尚未验证所有微信 Mac 版本；
 - 需要用户手动信任 CA；
 - 需要用户手动按 `⌘R`；

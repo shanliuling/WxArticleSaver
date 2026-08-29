@@ -1,7 +1,11 @@
 #!/bin/zsh
 set -e
 cd "${0:A:h}"
-exec python3 - <<'PY'
+PYTHON=python3
+if [[ -x .venv/bin/python ]]; then
+  PYTHON=.venv/bin/python
+fi
+exec "$PYTHON" - <<'PY'
 from pathlib import Path
 from proxy_backend_macos import MacOSProxyBackend, load_snapshot
 

@@ -219,7 +219,11 @@ def set_auto_proxy(service: str, pac_url: str, *, runner: CommandRunner = _defau
 
 
 def restore_service_state(state: ProxyServiceState, *, runner: CommandRunner = _default_runner) -> None:
-    _run([NETWORKSETUP, "-setautoproxyurl", state.name, state.auto_url], runner=runner)
+    # `networksetup -setautoproxyurl SERVICE ""` is rejected by recent macOS
+    # versions. An empty URL means that no PAC URL was configured, so disabling
+    # the auto-proxy state is the correct and safe restoration on those systems.
+    if state.auto_url:
+        _run([NETWORKSETUP, "-setautoproxyurl", state.name, state.auto_url], runner=runner)
     _run(
         [NETWORKSETUP, "-setautoproxystate", state.name, "on" if state.auto_enabled else "off"],
         runner=runner,
