@@ -59,6 +59,23 @@ On first run, WxArticleSaver automatically installs required dependencies and te
 
 ---
 
+### macOS Experimental Support (Run from Source)
+
+The macOS implementation is currently a source-run PoC and does not provide a signed or notarized `.app`. It uses a macOS network-service PAC file to route only the WeChat article/media allowlist through local `mitmproxy`.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+./run_macos.command --service "Wi-Fi"
+```
+
+On first launch, import the generated CA into the current user's `Login` Keychain and set it to `Always Trust`. Then fully quit and reopen WeChat for Mac; if the button does not appear, press `⌘R`. Press `Ctrl+C` in the launcher terminal to stop. If the process is interrupted, run `restore_proxy_macos.command`.
+
+See [`docs/macos.md`](./docs/macos.md) for setup, security notes, troubleshooting, and limitations.
+
+---
+
 ### 3. Export an Article (Common Steps)
 
 1. Start WxArticleSaver, then fully quit WeChat and reopen it.
