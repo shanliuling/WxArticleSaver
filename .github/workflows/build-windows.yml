@@ -3,6 +3,8 @@ name: Build Windows Portable
 on:
   push:
     tags: ['v*']
+    branches: ['main']
+    paths: ['manifest.json']
   workflow_dispatch:
 
 permissions:
@@ -25,18 +27,6 @@ jobs:
           if (-not $version) { throw "manifest.json version is missing" }
           "RELEASE_TAG=v$version" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
-      - name: Ensure tag exists for manual build
-        if: github.event_name == 'workflow_dispatch'
-        shell: pwsh
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          $existing = git ls-remote --tags origin "refs/tags/$env:RELEASE_TAG"
-          if (-not $existing) {
-            git tag $env:RELEASE_TAG
-            git push origin $env:RELEASE_TAG
-          }
-
       - name: Build portable package
         run: python scripts/build-windows.py
 
@@ -50,5 +40,5 @@ jobs:
           if ($LASTEXITCODE -eq 0) {
             gh release upload $env:RELEASE_TAG $asset --clobber
           } else {
-            gh release create $env:RELEASE_TAG $asset --title "WxArticleSaver $env:RELEASE_TAG" --generate-notes
+            gh release create $env:RELEASE_TAG $asset --target main --title "WxArticleSaver $env:RELEASE_TAG" --generate-notes
           }
