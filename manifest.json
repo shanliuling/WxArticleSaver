@@ -1,22 +1,20 @@
 {
   "name": "WxArticleSaver",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "AGPL-3.0-only",
-  "platform": "Windows 10 / 11",
+  "platform": "Windows 10 / 11, macOS Apple Silicon",
   "proxy_port": 8899,
   "pac_port": 8898,
   "scope": "WeChat article pages opened by the user; export occurs only after manual trigger",
-  "certificate": "generated locally; trusted in CurrentUser Root only while running; trust removed on normal exit",
-  "certificate_files": "kept locally under .wxas_ca for reuse; ignored by git",
+  "certificate": "generated locally; trusted only on the current device for local HTTPS proxying",
+  "certificate_files": "kept locally under the WxArticleSaver data directory for reuse; ignored by git",
   "routing": "PAC: selected WeChat article/media hosts -> local proxy; all other hosts DIRECT",
   "export_mode": "manual",
   "manual_trigger": "same-origin POST of rendered document.documentElement.outerHTML",
-  "cached_page_fallback": "best-effort one-shot Ctrl+R only when foreground process is WeChat/Weixin",
+  "cached_page_fallback": "best-effort refresh on Windows; manual refresh on macOS when needed",
   "video_export": {
     "direct_media": true,
     "unencrypted_hls": true,
-    "encrypted_hls": false,
-    "drm_bypass": false,
     "capture_requires_playback_when_direct_url_is_not_in_article": true
   },
   "proxied_hosts": [
