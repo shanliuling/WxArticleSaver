@@ -5,15 +5,16 @@
 <h1 align="center">WxArticleSaver</h1>
 
 <p align="center">
-  本地运行的微信公众号文章归档工具。<br>
-  打开你可以正常阅读的公众号文章，点击右下角「导出本文」，即可保存文章正文、图片及可直接获取的媒体资源。
+  本地运行的微信公众号文章导出 / 归档工具。<br>
+  打开你可以正常阅读的公众号文章，点击「导出本文」，即可保存正文、图片以及可直接获取的视频资源。
 </p>
 
 <p align="center">
-  <strong>Windows 10 / 11</strong> · <strong>GNU AGPL-3.0</strong><br>
+  <strong>Windows 10 / 11</strong> · <strong>macOS Apple Silicon（实验性）</strong> · <strong>AGPL-3.0</strong><br>
   <a href="https://github.com/shanliuling/WxArticleSaver/releases/latest"><img src="https://img.shields.io/github/v/release/shanliuling/WxArticleSaver?style=flat-square" alt="GitHub Release" /></a>
   <a href="https://github.com/shanliuling/WxArticleSaver/releases"><img src="https://img.shields.io/github/downloads/shanliuling/WxArticleSaver/total?style=flat-square" alt="GitHub Downloads" /></a>
-  <a href="https://github.com/shanliuling/WxArticleSaver/releases/latest"><img src="https://img.shields.io/badge/Portable-No%20Python%20Required-success?style=flat-square" alt="Portable No Python Required" /></a>
+  <a href="https://github.com/shanliuling/WxArticleSaver/releases/latest"><img src="https://img.shields.io/badge/Windows-Portable-success?style=flat-square" alt="Windows Portable" /></a>
+  <img src="https://img.shields.io/badge/macOS-Experimental-orange?style=flat-square" alt="macOS Experimental" />
   <a href="https://linux.do/"><img src="https://img.shields.io/badge/LINUX%20DO-社区友链-555?style=flat" alt="LINUX DO 社区友链" /></a>
 </p>
 
@@ -23,13 +24,16 @@
        width="100%" />
 </p>
 
-## 功能
+## ✨ 功能
 
-- 📄 一键导出 Markdown / HTML / TXT
-- 🖼️ 自动保存文章图片
-- 🎬 支持文章内可直接获取的视频资源
-- 🔒 所有文章内容默认仅保存在本机
-- 🚫 不需要第三方账号或云服务
+- 📄 一键导出 **Markdown / HTML / TXT**
+- 🖼️ 自动下载并保存文章图片
+- 🎬 支持保存文章内**可直接获取的视频资源**；无法直接下载时保留原始链接
+- 🧾 同时保存原始响应、文章元信息等归档数据
+- 🔒 文章内容默认只保存在本机
+- 🚫 不需要登录第三方账号，也不依赖云端服务
+- 🪟 Windows 提供免 Python 的便携版
+- 🍎 macOS 已支持 Apple Silicon，并提供 `.app / .dmg` 构建能力（实验性）
 
 <p align="center">
   <img src="./docs/images/workflow-demo.jpg"
@@ -37,14 +41,27 @@
        width="100%" />
 </p>
 
-## 快速开始
+## 🖥️ 平台支持
 
-### 方式一：免安装便携版（推荐 · 无需安装 Python）
+| 平台 | 状态 | 使用方式 |
+| --- | --- | --- |
+| Windows 10 / 11 | ✅ 推荐 | Release 便携版 / 源码运行 |
+| macOS Apple Silicon | 🧪 实验性 | DMG / App / 源码运行 |
+| macOS Intel | ❌ 暂未提供 DMG | 暂未正式支持 |
+| Linux | ❌ | 暂未支持 |
 
-1. 前往 **[Releases 最新发布页](https://github.com/shanliuling/WxArticleSaver/releases/latest)** 下载最新的 `WxArticleSaver-*-Windows-x64.zip`。
-2. 解压到任意文件夹，双击运行 **`WxArticleSaver.exe`**。
+## 🚀 快速开始
 
-导出的文章默认保存在 **`WxArticleSaver.exe` 所在目录下的 `exports` 文件夹** 中。例如：
+### Windows：免安装便携版（推荐）
+
+1. 前往 **[Releases 最新发布页](https://github.com/shanliuling/WxArticleSaver/releases/latest)**。
+2. 下载最新的 `WxArticleSaver-*-Windows-x64.zip`。
+3. 解压到任意文件夹。
+4. 双击运行 `WxArticleSaver.exe`。
+5. 完全退出并重新打开微信。
+6. 打开公众号文章，点击右下角 **「导出本文」**。
+
+导出的文章默认位于 `WxArticleSaver.exe` 同级的 `exports`：
 
 ```text
 WxArticleSaver/
@@ -55,58 +72,63 @@ WxArticleSaver/
       ├─ article.md
       ├─ article.html
       ├─ article.txt
+      ├─ raw_wechat_response.html
+      ├─ meta.json
       ├─ images/
       └─ videos/
 ```
 
----
-
-### 方式二：源码运行（适合开发者）
-
-#### 1. 环境要求
-- Windows 10 / 11
-- Python 3.11 或 3.12
-
-#### 2. 启动
-下载源码后双击：
-
-```text
-install_and_run.bat
-```
-
-首次运行会自动安装 Python 依赖，并在**当前 Windows 用户**下临时信任本机生成的代理证书。
+如果文章打开后没有出现按钮，先按 **Ctrl+R** 或右键刷新文章页面。
 
 ---
 
-### macOS 支持（DMG / 源码运行）
+### macOS：Apple Silicon（实验性）
 
-macOS 版本支持构建可双击启动的 `.app` / `.dmg`，也支持源码运行。DMG 首版面向 Apple Silicon（arm64）；由于当前没有 Developer ID 签名证书，首次打开未签名版本请在 Finder 中右键 App → **打开**。
+当前 macOS 实现支持 Apple Silicon（arm64），可构建 `.app` 和 `.dmg`。
 
-如果你从源码构建 DMG：
+源码运行：
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 ./run_macos.command --service "Wi-Fi"
+```
+
+构建 DMG：
+
+```bash
 python scripts/build-macos.py
 ```
 
-构建结果位于 `dist/WxArticleSaver-macos-arm64.dmg`。首次启动需要将程序生成的 CA 导入当前用户的 `Login` Keychain，并手动设置为 `Always Trust`。然后完全退出并重新打开微信 Mac；没有看到“导出本文”时手动按 `⌘R`。停止程序请回到终端按 `Ctrl+C`，异常退出后运行 `restore_proxy_macos.command`。
+构建结果：
 
-详细步骤、安全说明和当前限制见 [`docs/macos.md`](./docs/macos.md)；直接使用 DMG 的用户可阅读 [`docs/macos-user-guide.md`](./docs/macos-user-guide.md)。
+```text
+dist/WxArticleSaver-macos-arm64.dmg
+```
 
----
+首次运行需要：
 
-### 3. 导出文章（通用步骤）
+1. 将程序生成的 CA 导入当前用户的 `Login Keychain`。
+2. 手动设置为 `Always Trust`。
+3. 完全退出并重新打开微信 Mac。
+4. 打开公众号文章；如果没有出现「导出本文」，按 `⌘R`。
+5. 停止程序时回到终端按 `Ctrl+C`，等待代理恢复完成。
 
-1. 启动 WxArticleSaver 后，完全退出微信并重新打开。
-2. 打开你可以正常阅读的公众号文章。
-3. 点击文章右下角 **「导出本文」**。
-4. 如果没有看到按钮，请按 **Ctrl+R**，或在文章页面内 **右键 → 刷新** 后重试。
-5. 如果文章包含视频，建议先播放几秒，再点击「导出本文」。
+macOS 打包版默认导出到：
 
-导出内容默认保存在：
+```text
+~/Library/Application Support/WxArticleSaver/exports/
+```
+
+详细说明：
+
+- [macOS 用户指南](./docs/macos-user-guide.md)
+- [macOS 技术说明与故障排查](./docs/macos.md)
+
+## 📦 导出内容
+
+每篇文章会单独创建一个目录：
 
 ```text
 exports/
@@ -120,51 +142,105 @@ exports/
    └─ videos/
 ```
 
-## 为什么有时需要刷新？
+其中：
 
-Windows 微信可能直接从 WebView 页面缓存恢复已经打开过的文章，此时不会重新请求文章主 HTML，WxArticleSaver 就没有机会注入导出按钮。
+- `article.md`：适合 Obsidian、Typora、知识库等场景
+- `article.html`：尽量保留原始排版结构
+- `article.txt`：纯文本版本
+- `images/`：文章图片
+- `videos/`：可以直接获取的视频文件
+- `raw_wechat_response.html`：原始文章响应，方便后续重新处理
+- `meta.json`：文章相关元信息
 
-程序会在能够确认前台窗口是微信时，**尽力自动发送一次 Ctrl+R**。如果自动刷新没有触发，手动按 Ctrl+R 或右键刷新即可。
+## 🎬 视频说明
 
-## 视频说明
+公众号文章的视频资源通常不会直接写在初始 HTML 中。
 
-微信文章中的视频通常不会直接把真实媒体地址写在初始 HTML 里，因此建议先播放几秒，让页面实际请求媒体资源，再执行导出。
+如果你希望同时保存视频，建议：
 
-## 安全设计
+1. 打开文章；
+2. 先播放视频几秒；
+3. 再点击「导出本文」。
 
-WxArticleSaver 使用本地 `mitmproxy` 读取并修改微信文章 HTTPS 响应，因此首次运行需要在当前用户证书库中临时信任一个**由本机生成**的 CA。
+对于可直接访问的视频文件或未加密 HLS，WxArticleSaver 会尝试保存到本地；如果资源无法直接获取、经过加密或存在 DRM，则**不会绕过保护措施**，只保留可用链接或占位信息。
 
-## 常见问题
+## 🔄 为什么有时需要刷新？
 
-### 没有出现「导出本文」怎么办？
+微信桌面端可能直接从 WebView 缓存恢复已经打开过的文章，此时不会重新请求文章主 HTML，WxArticleSaver 就没有机会注入「导出本文」按钮。
 
-先在当前文章页按 **Ctrl+R**，或 **右键 → 刷新**。这是目前最常见的情况，通常由微信 WebView 页面缓存导致。
+- Windows：程序会在能够确认前台窗口为微信时，尽力自动执行一次 `Ctrl+R`。
+- macOS：当前版本不会申请 Accessibility 权限，因此需要用户手动按 `⌘R`。
 
-### 退出后网络不正常怎么办？
+## 🔐 安全说明
 
-运行：
+WxArticleSaver 使用本地 `mitmproxy` 读取并修改微信文章的 HTTPS 响应，因此需要信任一个**由当前电脑本地生成的 CA 证书**。
+
+工具只通过 PAC 将微信公众号文章及相关媒体域名发送到本地代理，其他网络请求正常情况下保持直连。
+
+### Windows
+
+首次运行会在当前 Windows 用户范围内配置所需证书和代理；程序正常退出时会尝试恢复原代理状态。
+
+如果退出后网络异常，可运行：
 
 ```text
 restore_proxy.bat
 ```
 
-### 想移除工具安装过的根证书怎么办？
-
-运行：
+清理证书：
 
 ```text
 remove_certificate.bat
 ```
 
-## 使用说明与免责声明
+### macOS
+
+macOS 首版不会静默修改 Keychain。首次使用需要用户自行确认并信任 CA。
+
+异常退出后可运行：
+
+```text
+restore_proxy_macos.command
+```
+
+清理证书：
+
+```text
+remove_certificate_macos.command
+```
+
+> 不要信任来源不明的 CA，也不要把本工具生成的 CA 私钥分享给其他人。
+
+## 🛠️ Windows 源码运行
+
+环境要求：
+
+- Windows 10 / 11
+- Python 3.11 / 3.12
+
+下载源码后运行：
+
+```text
+install_and_run.bat
+```
+
+首次运行会自动安装所需 Python 依赖。
+
+## ⚠️ 使用说明与免责声明
 
 本项目用于对用户**合法有权访问的内容**进行个人离线归档、学习与研究。
 
 请勿将本项目用于绕过付费、访问权限、DRM 或其他技术保护措施，也请勿用于未经授权的批量采集、版权内容再分发或其他侵害第三方权益的用途。使用者应自行遵守所在地适用法律法规及相关平台规则。
 
-本项目按现状提供，不对因使用本项目产生的账号、数据、网络配置或其他损失作任何保证。若你不了解 HTTPS 本地代理和根证书的含义，请先阅读上方「安全设计」后再运行。
+本项目按现状提供，不对因使用本项目产生的账号、数据、网络配置或其他损失作任何保证。若你不了解 HTTPS 本地代理和根证书的含义，请先阅读上方「安全说明」。
 
-## License
+## 🤝 Contributing
+
+欢迎提交 Issue 和 Pull Request。
+
+如果你在不同版本的微信、Windows 或 macOS 上遇到兼容问题，欢迎附上系统版本、微信版本以及运行日志，方便定位。
+
+## 📄 License
 
 本项目采用 **GNU Affero General Public License v3.0 (AGPL-3.0)** 开源。
 
