@@ -1,0 +1,59 @@
+name: Build macOS DMG
+
+on:
+  push:
+    tags: ['v*']
+    branches: ['main']
+    paths: ['manifest.json']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Resolve release tag
+        shell: bash
+        run: |
+          VERSION=$(python -c 'import json; print(json.load(open("manifest.json", encoding="utf-8"))["version"])')
+          echo "RELEASE_TAG=v${VERSION}" >> "$GITHUB_ENV"
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pyinstaller
+
+      - name: Run macOS tests
+        run: python -m unittest tests/test_macos_support.py
+
+      - name: Build DMG
+        run: python scripts/build-macos.py --skip-install
+
+      - name: Rename release assets
+        shell: bash
+        run: |
+          mv dist/WxArticleSaver-macos-arm64.dmg "dist/WxArticleSaver-v${VERSION}-macOS-arm64.dmg"
+          mv dist/WxArticleSaver-macos-arm64.dmg.sha256 "dist/WxArticleSaver-v${VERSION}-macOS-arm64.dmg.sha256"
+          sed -i '' "s/WxArticleSaver-macos-arm64.dmg/WxArticleSaver-v${VERSION}-macOS-arm64.dmg/" "dist/WxArticleSaver-v${VERSION}-macOS-arm64.dmg.sha256"
+
+      - name: Create or update Release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --target main --title "WxArticleSaver $RELEASE_TAG" --generate-notes || true
+          fi
+          gh release upload "$RELEASE_TAG" \
+            "dist/WxArticleSaver-v${VERSION}-macOS-arm64.dmg" \
+            "dist/WxArticleSaver-v${VERSION}-macOS-arm64.dmg.sha256" \
+            --clobber
