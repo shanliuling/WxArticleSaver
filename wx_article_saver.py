@@ -14,6 +14,8 @@ Rules:
 - Cookies/Authorization/pass_ticket are never persisted or reused for media download.
 """
 
+from __future__ import annotations
+
 import json
 import os
 import re
@@ -28,7 +30,10 @@ from urllib.parse import urlparse, parse_qs, urljoin
 import requests
 from bs4 import BeautifulSoup
 from markdownify import markdownify as md
-from mitmproxy import http, ctx
+try:
+    from mitmproxy import http, ctx
+except ImportError:  # The MCP reader reuses parser helpers without the desktop proxy.
+    http = ctx = None
 
 HOST = "mp.weixin.qq.com"
 SAVE_PATH = "/__wxas_save__"

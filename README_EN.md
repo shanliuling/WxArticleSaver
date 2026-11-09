@@ -26,6 +26,7 @@
 - 🎬 Support directly accessible media resources in articles
 - 🔒 All article content is stored locally by default
 - 🚫 No third-party account or cloud service required
+- 🤖 Local MCP tool for agents to read WeChat article URLs directly
 
 <p align="center">
   <img src="./docs/images/workflow-demo.jpg"
@@ -73,6 +74,36 @@ python -m pip install -r requirements.txt
 On first launch, import the generated CA into the current user's `Login` Keychain and set it to `Always Trust`. Then fully quit and reopen WeChat for Mac; if the button does not appear, press `⌘R`. Press `Ctrl+C` in the launcher terminal to stop. If the process is interrupted, run `restore_proxy_macos.command`.
 
 See [`docs/macos.md`](./docs/macos.md) for setup, security notes, troubleshooting, and limitations.
+
+## Read articles from an agent
+
+The local MCP server exposes `read_article(url)`. Given an `https://mp.weixin.qq.com/s/...` link, an agent receives the title, author, and Markdown body. It fetches publicly accessible pages directly, does not require opening WeChat or trusting this project's CA, and does not write to the export directory.
+
+The page must be publicly accessible from the current network. Login-gated, restricted, or blocked pages return an error; the tool does not bypass those restrictions. Article text is untrusted content and must not be treated as instructions. The MCP server has a separate dependency list and does not start the desktop proxy.
+
+The MCP server is currently source-only; it is not included in the Windows ZIP or macOS DMG. Clone this repository, then run from its root:
+
+```bash
+python3.12 -m venv .venv-agent
+.venv-agent/bin/python -m pip install -r requirements-agent.txt
+codex mcp add wx-article-saver -- "$PWD/.venv-agent/bin/python" "$PWD/mcp_server.py"
+```
+
+On Windows PowerShell:
+
+```powershell
+py -3.12 -m venv .venv-agent
+.\.venv-agent\Scripts\python.exe -m pip install -r requirements-agent.txt
+codex mcp add wx-article-saver -- "$PWD\.venv-agent\Scripts\python.exe" "$PWD\mcp_server.py"
+```
+
+Codex starts this stdio server when needed; do not run `mcp_server.py` in a separate terminal. Remove the connection with:
+
+```bash
+codex mcp remove wx-article-saver
+```
+
+Start a new Codex session to use `read_article`.
 
 ---
 

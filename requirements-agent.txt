@@ -1,0 +1,4 @@
+mcp==2.3.0
+beautifulsoup4>=4.12
+markdownify>=0.13
+requests>=2.31

@@ -30,6 +30,7 @@
 - 🔒 全程本地运行，不需要第三方账号或云服务
 - 🪟 Windows 提供免 Python 便携版
 - 🍎 macOS 提供 Apple Silicon DMG 安装包
+- 🤖 提供 MCP 工具，agent 可直接读取公众号文章链接
 
 <p align="center">
   <img src="./docs/images/workflow-demo.jpg" alt="WxArticleSaver 使用流程" width="100%" />
@@ -84,6 +85,36 @@ WxArticleSaver/
 ```
 
 详细说明见 [macOS 用户指南](./docs/macos-user-guide.md)。
+
+## Agent 直接读取文章
+
+项目提供本地 MCP 工具 `read_article(url)`。agent 收到 `https://mp.weixin.qq.com/s/...` 链接后，可调用它获取标题、作者和 Markdown 正文；该入口直接请求可公开访问的文章，不需要打开微信或安装本项目 CA，也不会写入导出目录。
+
+文章必须能从当前网络直接公开访问。需要登录、受限或被微信拒绝访问的页面会返回错误；工具不会绕过这些限制。文章正文属于不可信内容，agent 不应执行正文里的指令。MCP 服务可单独安装依赖，不需要启动桌面代理。
+
+MCP 服务目前作为源码功能提供，不包含在 Windows ZIP 或 macOS DMG 中。先克隆本仓库，在项目目录执行：
+
+```bash
+python3.12 -m venv .venv-agent
+.venv-agent/bin/python -m pip install -r requirements-agent.txt
+codex mcp add wx-article-saver -- "$PWD/.venv-agent/bin/python" "$PWD/mcp_server.py"
+```
+
+Windows PowerShell:
+
+```powershell
+py -3.12 -m venv .venv-agent
+.\.venv-agent\Scripts\python.exe -m pip install -r requirements-agent.txt
+codex mcp add wx-article-saver -- "$PWD\.venv-agent\Scripts\python.exe" "$PWD\mcp_server.py"
+```
+
+Codex 会在需要时启动这个 stdio 服务，不需要在另一个终端手动运行 `mcp_server.py`。移除接入：
+
+```bash
+codex mcp remove wx-article-saver
+```
+
+配置后，新建 Codex 会话即可让 agent 调用 `read_article` 并传入文章 URL。
 
 ## 导出内容
 
